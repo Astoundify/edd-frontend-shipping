@@ -90,13 +90,14 @@ class Astoundify_EDD_FSC {
 	 */
 	private function setup_actions() {
 		add_filter( 'edd_fes_vendor_dashboard_menu', array( $this, 'fes_menu_items' ) );
+		add_filter( 'edd_user_can_view_receipt', array( $this, 'edd_user_can_view_receipt' ), 10, 2 );
 		add_filter( 'eddc_sale_alert_email', array( $this, 'eddc_sale_alert_email' ), 10, 5 );
 	}
 
 	public function fes_menu_items( $items ) {
 		$orders = array(
 			'orders' => array(
-				'icon' => 'icon-chart-pie',
+				'icon' => 'credit-card',
 				'task' => array( 'orders' ),
 				'name' => __( 'Orders', 'edd_fsc' )
 			)
@@ -105,6 +106,22 @@ class Astoundify_EDD_FSC {
 		array_splice( $items, count( $items ) - 1, 0, $orders );
 
 		return $items;
+	}
+
+	function edd_user_can_view_receipt( $user_can_view, $edd_receipt_args ) {
+		$cart = edd_get_payment_meta_cart_details( $edd_receipt_args[ 'id' ] );
+
+		foreach ( $cart as $item ) {
+			$item = get_post( $item[ 'id' ] );
+
+			if ( $item->post_author == get_current_user_id() ) {
+				$user_can_view = true;
+
+				break;
+			}
+		}
+
+		return $user_can_view;
 	}
 
 	function eddc_sale_alert_email( $message, $user_id, $commission_amount, $rate, $download_id ) {
