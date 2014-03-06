@@ -5,14 +5,14 @@
  * Description: Link up Frontend Submissions with Simple Shipping and Commissions
  * Author:      Astoundify
  * Author URI:  http://astoundify.com
- * Version:     1.0
+ * Version:     1.0.0.0
  * Text Domain: edd_fs
  */
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-class Astoundify_EDD_FSC {
+class EDD_Frontend_Shipping {
 
 	/**
 	 * @var $instance
@@ -37,7 +37,7 @@ class Astoundify_EDD_FSC {
 	/**
 	 * Start things up.
 	 *
-	 * @since Easy Digital Downloads + Frontend Shipping 1.0
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
 	 */
 	public function __construct() {
 		$this->setup_actions();
@@ -49,7 +49,7 @@ class Astoundify_EDD_FSC {
 	 * Set some smart defaults to class variables. Allow some of them to be
 	 * filtered to allow for early overriding.
 	 *
-	 * @since Easy Digital Downloads + Frontend Shipping 1.0
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
 	 *
 	 * @return void
 	 */
@@ -67,7 +67,7 @@ class Astoundify_EDD_FSC {
 	/**
 	 * Loads the plugin language files
 	 *
- 	 * @since Easy Digital Downloads + Frontend Shipping 1.0
+ 	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
 	 */
 	public function load_textdomain() {
 		$locale        = apply_filters( 'plugin_locale', get_locale(), $this->domain );
@@ -88,26 +88,45 @@ class Astoundify_EDD_FSC {
 	/**
 	 * Setup the default hooks and actions
 	 *
-	 * @since Easy Digital Downloads + Frontend Shipping 1.0
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
 	 *
 	 * @return void
 	 */
 	private function setup_actions() {
 		add_filter( 'edd_user_can_view_receipt', array( $this, 'edd_user_can_view_receipt' ), 10, 2 );
-		add_filter( 'eddc_sale_alert_email', array( $this, 'eddc_sale_alert_email' ), 10, 5 );
 		add_filter( 'edd_template_paths', array( $this, 'edd_template_paths' ) );
 
+		add_action( 'edd_payment_receipt_after', array( $this, 'edd_payment_receipt_after' ), 10, 2 );
 		add_action( 'edd_fs_mark_shipped', array( $this, 'mark_shipped' ) );
 
 		add_shortcode( 'edd_frontend_shipping', array( $this, 'edd_frontend_shipping' ) );
 	}
 
+	/**
+	 * Create our own template directory to load template files from and allow themes
+	 * and other plugins to set their own.
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @param array $paths
+	 * @return array $paths
+	 */
 	function edd_template_paths( $paths ) {
-		$paths[20] = trailingslashit( $this->plugin_dir ) . trailingslashit( 'templates' );
+		$paths[90] = trailingslashit( $this->plugin_dir ) . trailingslashit( 'templates' );
 
 		return $paths;
 	}
 
+	/**
+	 * If the current user is the author of an item in someone's purchase, let
+	 * them view the purchase receipt.
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @param boolean $user_can_view
+	 * @param array $edd_receipt_args
+	 * @return boolean $user_can_view
+	 */
 	function edd_user_can_view_receipt( $user_can_view, $edd_receipt_args ) {
 		$cart = edd_get_payment_meta_cart_details( $edd_receipt_args[ 'id' ] );
 
@@ -124,10 +143,102 @@ class Astoundify_EDD_FSC {
 		return $user_can_view;
 	}
 
-	function eddc_sale_alert_email( $message, $user_id, $commission_amount, $rate, $download_id ) {
+	/**
+	 * Add the shipping address to the end of the payment receipt.
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @param object $payment
+	 * @param array $edd_receipt_args
+	 * @return void
+	 */
+	function edd_payment_receipt_after( $payment, $edd_receipt_args ) {
+		$user_info = edd_get_payment_meta_user_info( $payment->ID );
+		$address   = ! empty( $user_info[ 'shipping_info' ] ) ? $user_info[ 'shipping_info' ] : false;
 
+		if ( ! $address ) {
+			return;
+		}
+
+		echo '<tr>';
+		echo '<td><strong>' . __( 'Shipping Address', 'edd_fs' ) . '</strong></td>';
+		echo '<td>' . self::format_address( $user_info, $address ) . '<td>';
+		echo '</tr>';
 	}
 
+	/**
+	 * Mark a payment as shipped.
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @return void
+	 */
+	function mark_shipped() {
+		if ( ! wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'fs_mark_shipped' ) ) {
+			wp_safe_redirect( wp_get_referer() );
+
+			return exit();
+		}
+
+		$payment_id = absint( $_GET[ 'payment_id' ] );
+
+		if ( ! $this->edd_user_can_view_receipt( false, array( 'id' => $payment_id ) ) ) {
+			wp_safe_redirect( wp_get_referer() );
+
+			return exit();
+		}
+
+		update_post_meta( $payment_id, '_edd_payment_shipping_status', '2' );
+
+		wp_safe_redirect( wp_get_referer() );
+
+		exit();
+	}
+
+	/**
+	 * Format an address based on name and address information.
+	 *
+	 * For translators, a sample default address:
+	 *
+	 * First Last
+	 * Street Address 1
+	 * Street Address 2
+	 * City, State ZIP
+	 * Country
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @param array $user_info
+	 * @param array $address
+	 * @return string $address
+	 */
+	public static function format_address( $user_info, $address ) {
+		$user_info = array_map( 'esc_attr', $user_info );
+		$address   = array_map( 'esc_attr', $address );
+
+		$address = apply_filters( 'edd_fs_address_format', sprintf(
+			'<strong>%1$s %2$s</strong><br />%3$s<br />%4$s<br />%5$s, %6$s %7$s<br />%8$s',
+			$user_info[ 'first_name' ],
+			$user_info[ 'last_name' ],
+			$address[ 'address' ],
+			$address[ 'address2' ],
+			$address[ 'city' ],
+			$address[ 'state' ],
+			$address[ 'zip' ],
+			$address[ 'country' ]
+		) );
+
+		return $address;
+	}
+
+	/**
+	 * Shortcode output
+	 *
+	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
+	 *
+	 * @param array $atts
+	 * @return void
+	 */
 	function edd_frontend_shipping( $atts ) {
 		$atts = shortcode_atts( array(
 			'show-shipped' => true
@@ -153,10 +264,10 @@ class Astoundify_EDD_FSC {
 		foreach ( $payments as $payment ) {
 			$status = get_post_meta( $payment->ID, '_edd_payment_shipping_status', true );
 
-			if ( 2 == $status || ! $address ) {
-				$shipped[] = $payment;
-			} else {
+			if ( 2 == $status ) {
 				$unshipped[] = $payment;
+			} else {
+				$shipped[] = $payment;
 			}
 		}
 
@@ -173,27 +284,5 @@ class Astoundify_EDD_FSC {
 		return $content;
 	}
 
-	function mark_shipped() {
-		if ( ! wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'fs_mark_shipped' ) ) {
-			wp_safe_redirect( wp_get_referer() );
-
-			return exit();
-		}
-
-		$payment_id = absint( $_GET[ 'payment_id' ] );
-
-		if ( ! $this->edd_user_can_view_receipt( false, array( 'id' => $payment_id ) ) ) {
-			wp_safe_redirect( wp_get_referer() );
-
-			return exit();
-		}
-
-		update_post_meta( $payment_id, '_edd_payment_shipping_status', '2' );
-
-		wp_safe_redirect( wp_get_referer() );
-
-		exit();
-	}
-
 }
-add_action( 'plugins_loaded', array( 'Astoundify_EDD_FSC', 'instance' ) );
+add_action( 'plugins_loaded', array( 'EDD_Frontend_Shipping', 'instance' ) );
