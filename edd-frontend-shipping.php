@@ -1,11 +1,11 @@
 <?php
 /**
  * Plugin Name: Easy Digital Downloads - Frontend Shipping
- * Plugin URI:  https://github.com/Astoundify/wp-job-manager-gravityforms-apply/
- * Description: Link up Frontend Submissions with Simple Shipping and Commissions
+ * Plugin URI:  https://github.com/Astoundify/edd-frontend-shipping/
+ * Description: Display a list of unshipped (and shipped) orders for frontend vendors.
  * Author:      Astoundify
  * Author URI:  http://astoundify.com
- * Version:     1.0.0.0
+ * Version:     1.0.0
  * Text Domain: edd_fs
  */
 
@@ -23,7 +23,7 @@ class EDD_Frontend_Shipping {
 	 * Make sure only one instance is only running.
 	 */
 	public static function instance() {
-		if ( ! ( class_exists( 'Easy_Digital_Downloads' ) && class_exists( 'EDD_Front_End_Submissions' ) ) ) {
+		if ( ! ( class_exists( 'Easy_Digital_Downloads' ) && class_exists( 'EDD_Front_End_Submissions' ) && class_exists( 'EDD_Simple_Shipping' ) ) {
 			return;
 		}
 
@@ -61,7 +61,7 @@ class EDD_Frontend_Shipping {
 		$this->plugin_url   = plugin_dir_url ( $this->file );
 
 		$this->lang_dir     = trailingslashit( $this->plugin_dir . 'languages' );
-		$this->domain       = 'job_manager_alerts_sms';
+		$this->domain       = 'edd_fs';
 	}
 
 	/**
@@ -200,11 +200,11 @@ class EDD_Frontend_Shipping {
 	 *
 	 * For translators, a sample default address:
 	 *
-	 * First Last
-	 * Street Address 1
-	 * Street Address 2
-	 * City, State ZIP
-	 * Country
+	 * (1) First (2) Last
+	 * (3) Street Address 1
+	 * (4) Street Address 2
+	 * (5) City, (6) State (7) ZIP
+	 * (8) Country
 	 *
 	 * @since Easy Digital Downloads - Frontend Shipping 1.0.0
 	 *
@@ -217,7 +217,7 @@ class EDD_Frontend_Shipping {
 		$address   = array_map( 'esc_attr', $address );
 
 		$address = apply_filters( 'edd_fs_address_format', sprintf(
-			'<strong>%1$s %2$s</strong><br />%3$s<br />%4$s<br />%5$s, %6$s %7$s<br />%8$s',
+			__( '<strong>%1$s %2$s</strong><br />%3$s<br />%4$s<br />%5$s, %6$s %7$s<br />%8$s', 'edd_fs' ),
 			$user_info[ 'first_name' ],
 			$user_info[ 'last_name' ],
 			$address[ 'address' ],

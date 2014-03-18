@@ -6,7 +6,7 @@
 
 <?php if ( $unshipped ) : ?>
 
-<h2><?php _e( 'Unshipped Orders', 'edd_fes' ); ?></h2>
+<h2><?php _e( 'Unshipped Orders', 'edd_fs' ); ?></h2>
 
 <table class="fes_table table-condensed" id="fes-published-products">
 	<thead>
@@ -46,7 +46,7 @@
 <table class="fes_table table-condensed" id="fes-published-products">
 	<thead>
 		<tr>
-			<th><?php _e( 'Order', 'edd_fes' ); ?></th>
+			<th><?php _e( 'Order', 'edd_fs' ); ?></th>
 		</tr>
 	</thead>
 	<tbody>

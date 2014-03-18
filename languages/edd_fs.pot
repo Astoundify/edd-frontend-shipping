@@ -1,0 +1,56 @@
+# Copyright (C) 2014 Easy Digital Downloads - Frontend Shipping
+# This file is distributed under the same license as the Easy Digital Downloads - Frontend Shipping package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Easy Digital Downloads - Frontend Shipping 1.0.0\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/edd-frontend-shipping\n"
+"POT-Creation-Date: 2014-03-18 14:36:43+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: edd-frontend-shipping.php:164 templates/frontend-shipping.php:15
+msgid "Shipping Address"
+msgstr ""
+
+#: edd-frontend-shipping.php:220
+msgid "<strong>%1$s %2$s</strong><br />%3$s<br />%4$s<br />%5$s, %6$s %7$s<br />%8$s"
+msgstr ""
+
+#: templates/frontend-shipping.php:9
+msgid "Unshipped Orders"
+msgstr ""
+
+#: templates/frontend-shipping.php:14 templates/frontend-shipping.php:49
+msgid "Order"
+msgstr ""
+
+#: templates/frontend-shipping.php:33
+msgid "Mark Shipped"
+msgstr ""
+
+#: templates/frontend-shipping.php:44
+msgid "Shipped Orders"
+msgstr ""
+#. Plugin Name of the plugin/theme
+msgid "Easy Digital Downloads - Frontend Shipping"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/Astoundify/edd-frontend-shipping/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Display a list of unshipped (and shipped) orders for frontend vendors."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Astoundify"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://astoundify.com"
+msgstr ""
