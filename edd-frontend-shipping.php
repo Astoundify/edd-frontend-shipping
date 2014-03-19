@@ -23,7 +23,7 @@ class EDD_Frontend_Shipping {
 	 * Make sure only one instance is only running.
 	 */
 	public static function instance() {
-		if ( ! ( class_exists( 'Easy_Digital_Downloads' ) && class_exists( 'EDD_Front_End_Submissions' ) && class_exists( 'EDD_Simple_Shipping' ) ) {
+		if ( ! ( class_exists( 'Easy_Digital_Downloads' ) && class_exists( 'EDD_Front_End_Submissions' ) && class_exists( 'EDD_Simple_Shipping' ) ) ) {
 			return;
 		}
 
