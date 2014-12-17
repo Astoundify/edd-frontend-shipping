@@ -3,10 +3,10 @@
 Author URI: http://astoundify.com
 Plugin URI: https://github.com/Astoundify/edd-frontend-shipping/
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=contact@appthemer.com&item_name=Donation+for+Astoundify
-Contributors: spencerfinnell
+Contributors: Astoundify, SpencerFinnell
 Tags: easy digital downloads, edd, edd shipping, frontend shipping, astoundify, marketify
-Requires at least: 3.5
-Tested up to: 3.9
+Requires at least: 4.1
+Tested up to: 4.1
 Stable Tag: 1.0.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
